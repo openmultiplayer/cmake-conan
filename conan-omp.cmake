@@ -43,6 +43,12 @@ if (NOT CONAN_OMP_BUILD_PROFILE_NAME)
 	set(CONAN_OMP_BUILD_PROFILE_NAME omp_build)
 endif()
 
+execute_process(
+	COMMAND ${CONAN_CMD} config init --force
+	RESULT_VARIABLE return_code
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 conan_create_profile(${CONAN_OMP_PROFILE_NAME})
 conan_update_profile(${CONAN_OMP_PROFILE_NAME} "options.*:shared=False")
 conan_update_profile(${CONAN_OMP_PROFILE_NAME} "settings.arch=${CROSS_BUILD_ARCH}")
