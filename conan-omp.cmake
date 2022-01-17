@@ -71,7 +71,7 @@ function(conan_omp_add_lib pkg_name pkg_version)
 		PROFILE ${CONAN_OMP_PROFILE_NAME}
 		BASIC_SETUP CMAKE_TARGETS
 		BUILD missing
-		PROFILE_AUTO build_type
+		PROFILE_AUTO build_type compiler compiler.version compiler.runtime compiler.libcxx compiler.toolset
 	)
 
 	set_target_properties(CONAN_PKG::${pkg_name} PROPERTIES IMPORTED_GLOBAL TRUE)
