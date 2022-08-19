@@ -63,7 +63,7 @@ conan_update_profile(${CONAN_OMP_BUILD_PROFILE_NAME} "options.*:shared=False")
 
 # Automatically download and set up paths to a library on Conan
 # Works for multi-configuration
-function(conan_omp_add_lib pkg_name pkg_version)
+function(conan_omp_add_lib pkg_name pkg_version pkg_custom_options)
 	set(CONAN_DISABLE_CHECK_COMPILER TRUE)
 	conan_cmake_run(
 		REQUIRES ${pkg_name}/${pkg_version}
@@ -72,6 +72,7 @@ function(conan_omp_add_lib pkg_name pkg_version)
 		BASIC_SETUP CMAKE_TARGETS
 		BUILD missing
 		PROFILE_AUTO build_type compiler compiler.version compiler.runtime compiler.libcxx compiler.toolset
+		OPTIONS ${pkg_custom_options}
 	)
 
 	set_target_properties(CONAN_PKG::${pkg_name} PROPERTIES IMPORTED_GLOBAL TRUE)
