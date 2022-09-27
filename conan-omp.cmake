@@ -21,15 +21,6 @@ function(conan_update_profile profile setting)
 	endif()
 endfunction()
 
-function(conan_reset_config)
-	conan_check(REQUIRED DETECT_QUIET)
-	execute_process(
-		COMMAND ${CONAN_CMD} config init --force
-		RESULT_VARIABLE return_code
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
-endfunction()
-
 if (NOT CROSS_BUILD)
 	if (MSVC_CXX_ARCHITECTURE_ID)
 		string(TOLOWER ${MSVC_CXX_ARCHITECTURE_ID} LOWERCASE_CMAKE_SYSTEM_PROCESSOR)
@@ -51,8 +42,6 @@ endif()
 if (NOT CONAN_OMP_BUILD_PROFILE_NAME)
 	set(CONAN_OMP_BUILD_PROFILE_NAME omp_build)
 endif()
-
-conan_reset_config()
 
 conan_create_profile(${CONAN_OMP_PROFILE_NAME})
 conan_update_profile(${CONAN_OMP_PROFILE_NAME} "options.*:shared=False")
