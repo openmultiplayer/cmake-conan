@@ -21,6 +21,35 @@ function(conan_update_profile profile setting)
 	endif()
 endfunction()
 
+macro(conan_cache_dir dir)
+	conan_check(REQUIRED DETECT_QUIET)
+	execute_process(
+		COMMAND ${CONAN_CMD} config get storage.path
+		RESULT_VARIABLE return_code
+		OUTPUT_VARIABLE _dir
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
+	if(NOT "${return_code}" STREQUAL "0")
+		message(FATAL_ERROR "Couldn't get conan cache directory")
+	endif()
+
+	set(_valid FALSE)
+	if($ENV{CONAN_USER_HOME})
+		set(CONAN_USER_HOME ${CONAN_USER_HOME})
+		set(_valid TRUE)
+	# Since this is supported only in 3.21+, make it optional for the cases where the path is relative to ~
+	elseif(CMAKE_VERSION VERSION_GREATER_EQUAL 3.21)
+		file(REAL_PATH "~/.conan" CONAN_USER_HOME EXPAND_TILDE)
+		set(_valid TRUE)
+	endif()
+
+	if(_valid)
+		string(REGEX REPLACE "^\\." ${CONAN_USER_HOME} ${dir} ${_dir})
+	endif()
+	string(STRIP ${dir} ${_dir})
+	string(REGEX REPLACE "\n$" "" ${dir} ${_dir})
+endmacro()
+
 if (NOT TARGET_BUILD_ARCH)
 	if (MSVC_CXX_ARCHITECTURE_ID)
 		string(TOLOWER ${MSVC_CXX_ARCHITECTURE_ID} LOWERCASE_CMAKE_SYSTEM_PROCESSOR)
@@ -78,6 +107,17 @@ function(conan_omp_add_lib_opt pkg_name pkg_version pkg_options)
 	)
 
 	set_target_properties(CONAN_PKG::${pkg_name} PROPERTIES IMPORTED_GLOBAL TRUE)
+	conan_cache_dir(_cache)
+	target_include_directories(CONAN_PKG::${pkg_name} INTERFACE ${_cache})
+	# Fix for MSVS 2022 Intellisense not working with conan packages because it doesn't properly process -imsvc
+	if (MSVC)
+		if (MSVC_TOOLSET_VERSION GREATER_EQUAL 143)
+			get_target_property(include_dirs CONAN_PKG::${pkg_name} INTERFACE_INCLUDE_DIRECTORIES)
+			foreach(include_dir ${include_dirs})
+				target_compile_options(CONAN_PKG::${pkg_name} INTERFACE "/I\"${include_dir}\"")
+			endforeach()
+		endif()
+	endif()
 endfunction()
 
 function(conan_omp_add_lib pkg_name pkg_version)
