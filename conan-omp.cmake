@@ -109,9 +109,9 @@ function(conan_omp_add_lib_opt pkg_name pkg_version pkg_options)
 	set_target_properties(CONAN_PKG::${pkg_name} PROPERTIES IMPORTED_GLOBAL TRUE)
 	conan_cache_dir(_cache)
 	target_include_directories(CONAN_PKG::${pkg_name} INTERFACE ${_cache})
-	# Fix for MSVS 2022 Intellisense not working with conan packages because it doesn't properly process -imsvc
+	# Fix for MSVS 2019/2022 Intellisense not working with ClangCL and conan packages because it doesn't properly process -imsvc
 	if (MSVC)
-		if (MSVC_TOOLSET_VERSION GREATER_EQUAL 143)
+		if (MSVC_TOOLSET_VERSION GREATER_EQUAL 142)
 			get_target_property(include_dirs CONAN_PKG::${pkg_name} INTERFACE_INCLUDE_DIRECTORIES)
 			foreach(include_dir ${include_dirs})
 				target_compile_options(CONAN_PKG::${pkg_name} INTERFACE "/I\"${include_dir}\"")
